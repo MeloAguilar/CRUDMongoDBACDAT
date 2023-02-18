@@ -4,29 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8cb08271-4cfe-495a-b8ae-659af8a6b1f1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jpa-buddy.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DAL/BusinessLogic.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DAL/Gestion.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DAL/MiConexion.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/GestionDocumentos.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoConnection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoDAL.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Alumno.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Matricula.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Profesor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ResourcesSQL/Alumnos.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ResourcesSQL/Matriculas.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ResourcesSQL/Profesores.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/UI/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/UI/menu.java" afterDir="false" />
+    <list default="true" id="8cb08271-4cfe-495a-b8ae-659af8a6b1f1" name="Changes" comment="initial commit">
+      <change afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/AlumnoDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/MatriculasDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/ProfesorDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DAL/BusinessLogic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DAL/BusinessLogic.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoDAL.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoDAL.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Alumno.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Alumno.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Matricula.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Matricula.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Profesor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Profesor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/UI/menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/UI/menu.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,6 +59,10 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.editor",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -78,6 +71,26 @@
       <recent name="E:\DAM\ACDAT\untitled\src\main\java\DAL" />
       <recent name="E:\DAM\ACDAT\untitled\src\main\java" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="UI.Main" />
+      <module name="untitled" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="UI.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -88,10 +101,74 @@
       <option name="presentableId" value="Default" />
       <updated>1676395956048</updated>
       <workItem from="1676395957239" duration="8495000" />
+      <workItem from="1676405377356" duration="206000" />
+      <workItem from="1676656404026" duration="1371000" />
+      <workItem from="1676657786578" duration="201000" />
+      <workItem from="1676658016663" duration="4071000" />
+      <workItem from="1676723367718" duration="5597000" />
+      <workItem from="1676734366513" duration="18687000" />
     </task>
+    <task id="LOCAL-00001" summary="initial commit">
+      <created>1676405517739</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1676405517739</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="initial commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="initial commit" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoDAL.java</url>
+          <line>160</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/UI/menu.java</url>
+          <line>612</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoConnection.java</url>
+          <line>33</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/AlumnoDAO.java</url>
+          <line>33</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="com.mongodb.client.internal.MongoCollectionImpl" memberName="executor" />
+      </pinned-members>
+    </pin-to-top-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

@@ -1,34 +1,57 @@
 package EntidadesPersistencia;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 
 public class Alumno {
-    private int id;
+
+    public String _id;
+    private String dni;
     private String nombre;
     private String apellidos;
     private LocalDate fechaNacimiento;
 
+    private Timestamp createdAt;
 
-    public Alumno(int id, String nombre, String apellidos, LocalDate fechaNacimiento) {
-        this.id = id;
+
+    public Alumno(String dni, String nombre, String apellidos, LocalDate fechaNacimiento) {
+        this.dni = dni;
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.fechaNacimiento = fechaNacimiento;
+        createdAt = Timestamp.from(Instant.now());
     }
 
+
     public Alumno() {
-        this.id = 0;
+        this.dni = "00000000A";
         this.nombre = "";
         this.apellidos = "";
         this.fechaNacimiento = LocalDate.now();
+        createdAt = Timestamp.from(Instant.now());
+    }
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
-    public int getId() {
-        return id;
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String get_id() {
+        return _id;
+    }
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
     }
 
     public String getNombre() {
@@ -67,14 +90,14 @@ public class Alumno {
     public String toString() {
         return String.format("""
                 ========================================
-                id = %d
+                DNI = %s
                 
                 nombre = %s
                 
                 apellidos = %s
                 
                 fechaNacimiento = %s
-                ========================================""", id, nombre, apellidos, fechaNacimiento.toString());
+                ========================================""", dni, nombre, apellidos, fechaNacimiento.toString());
 
     }
 

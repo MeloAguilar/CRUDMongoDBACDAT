@@ -146,7 +146,7 @@ public class BusinessLogic {
                 lista = new ArrayList<Profesor>();
                 //Relleno el arrayList de profesores
                 while (result.next()) {
-                    var profesor = new Profesor(result.getInt(1), result.getString(2),result.getString(3), result.getDate(4).toLocalDate(), result.getInt(5));
+                    var profesor = new Profesor(result.getString(1), result.getString(2),result.getString(3), result.getDate(4).toLocalDate(), result.getInt(5));
                     System.out.println(profesor);
                 }
 
@@ -155,7 +155,7 @@ public class BusinessLogic {
                 lista = new ArrayList<Alumno>();
                 //Genero el arrayList de Alumnos
                 while (result.next()) {
-                    var alumno = new Alumno(result.getInt(1), result.getString(2),result.getString(3), result.getDate(4).toLocalDate());
+                    var alumno = new Alumno(result.getString(1), result.getString(2),result.getString(3), result.getDate(4).toLocalDate());
                     System.out.println(alumno);
                 }
 
@@ -164,7 +164,7 @@ public class BusinessLogic {
                 lista = new ArrayList<Matricula>();
                 //Genero el arrayList de Matriculas
                 while (result.next()) {
-                    var matricula = new Matricula(result.getInt(1), result.getInt(2), result.getInt(3), result.getString(4), result.getInt(5));
+                    var matricula = new Matricula(result.getInt(1), result.getString(2), result.getString(3), result.getString(4), result.getInt(5));
                     System.out.println(matricula);
                 }
             }
@@ -309,7 +309,7 @@ public class BusinessLogic {
             apellidos = result.getString(3);
             fechaNacimiento = result.getDate(4).toLocalDate();
             antiguedad = result.getInt(5);
-            prof = new Profesor(id, nombre, apellidos, fechaNacimiento, antiguedad);
+            //prof = new Profesor(id, nombre, apellidos, fechaNacimiento, antiguedad);
         } catch (SQLException e) {
             System.out.println("No se pudo acceder a la base de datos");
         }
@@ -342,7 +342,8 @@ public class BusinessLogic {
             nombre = result.getString("nombre");
             apellidos = result.getString("apellidos");
             fechaNacimiento = result.getDate("fechaNacimiento").toLocalDate();
-            alumno = new Alumno(id, nombre, apellidos, fechaNacimiento);
+            //Volver a modificar para que funcione con el dni y el timestamp en hibernate
+            //alumno = new Alumno(id, nombre, apellidos, fechaNacimiento);
         } catch (SQLException e) {
             System.out.println("No se obtuvo ningún registro");
         } catch (ClassNotFoundException e) {
@@ -362,8 +363,8 @@ public class BusinessLogic {
      */
     public Matricula getMatriculaById(int id) {
         Matricula matricula = null;
-        int idProf;
-        int idAlumno;
+        String idProf;
+        String idAlumno;
         String asignatura;
         int curso;
         var datos = new StringBuilder("Select * From ");
@@ -373,8 +374,8 @@ public class BusinessLogic {
         try {
             result = gestion.getSelectResultSet(String.valueOf(datos), id);
             result.next();
-            idProf = result.getInt("idProfesor");
-            idAlumno = result.getInt("idAlumno");
+            idProf = result.getString("idProfesor");
+            idAlumno = result.getString("idAlumno");
             asignatura = result.getString("asignatura");
             curso = result.getInt("curso");
             matricula = new Matricula(id, idProf, idAlumno, asignatura, curso);

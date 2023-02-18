@@ -1,11 +1,18 @@
 package UI;
 
-import DAL.BusinessLogic;
+import DAL.Mongo.DAO.AlumnoDAO;
+import DAL.Mongo.DAO.MatriculasDAO;
+import DAL.Mongo.DAO.ProfesorDAO;
+import DAL.Mongo.MongoDAL;
+import EntidadesPersistencia.Alumno;
+import EntidadesPersistencia.Matricula;
+import EntidadesPersistencia.Profesor;
 
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Month;
 import java.time.MonthDay;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -13,11 +20,10 @@ import java.util.Scanner;
 import static java.lang.String.format;
 
 public class menu {
-    private BusinessLogic bl;
 
     //Método que lanza el inicio del menú
     public void iniciarMenu(Scanner sc) {
-        bl = new BusinessLogic();
+
         start(sc);
     }
 
@@ -116,45 +122,162 @@ public class menu {
 
             System.out.println(menu);
             var eleccion = seleccionarOpcion(sc);
-            try {
 
+            boolean salirEle = false;
+            while (!salirEle) {
+                try {
+                    switch (eleccion) {
+                        case 1 -> {
+                            var dni = sc.next();
+                            var prof = new Profesor();
+                            if ((prof = ProfesorDAO.GetProfesorById(dni)) != null) {
+                                System.out.println(prof);
+                                salirEle = true;
+                            } else {
+                                System.out.println("No existe un profesor con ese DNI dentro de la base de datos");
+                            }
+
+                        }
+                        case 2 -> {
+                            var id = sc.next();
+                            if ((AlumnoDAO.GetAlumnoById(id)) != null) {
+                                System.out.println(AlumnoDAO.GetAlumnoById(id));
+                                salirEle = true;
+                            } else {
+                                System.out.println("No existe un alumno con ese DNI dentro de la base de datos");
+                            }
+
+                        }
+                        case 3 -> {
+                            menuBuscarMatricula(sc);
+                            var id = getEnteroMenuBuscarPorId(sc, eleccion);
+                            if ((MatriculasDAO.GetMatriculaById(id)) != null) {
+                                System.out.println(MatriculasDAO.GetMatriculaById(id));
+                            }
+                            salirEle = true;
+                        }
+                        case 0 -> {
+                            salir = true;
+                            salirEle = true;
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Debe introducir un número");
+                }
+
+
+            }
+        }
+    }
+
+    private void buscarMatriculaDNIProfesor(Scanner sc) {
+        var menu = """
+                =========================================
+                                
+                0 = salir
+                                
+                1 = Editar Matricula
+                                
+                2 = Eliminar matrícula
+                                
+                ========================================""";
+        boolean salir = false;
+        while (!salir) {
+
+            System.out.println("Escribe el DNI del profesor sobre el que quiere rescatar llas matriculas.");
+            var dni = sc.next();
+            Profesor prof = null;
+            if ((prof = ProfesorDAO.GetProfesorById(dni)) != null) {
+                List<Matricula> matriculas = MongoDAL.GetMatriculasProfesor(dni);
+                for (Matricula mat : matriculas) {
+                    System.out.println(mat);
+                }
+                System.out.println("Desea realizar alguna acción con estas matriculas?");
+                System.out.println(menu);
+                var eleccion = sc.next();
 
                 switch (eleccion) {
-                    case 1 -> {
-                        var id = getEnteroMenuBuscarPorId(sc, eleccion);
-                       if(( bl.getProfesorById(id)) != null) {
-                            System.out.println(bl.getProfesorById(id));
-                        }
-
-
-                    }
-                    case 2 -> {
-                        var id = getEnteroMenuBuscarPorId(sc, eleccion);
-                        if(( bl.getAlumnoById(id)) != null) {
-                            System.out.println(bl.getAlumnoById(id));
-                        }
-
-                    }
-                    case 3 -> {
-                        var id = getEnteroMenuBuscarPorId(sc, eleccion);
-                        if(( bl.getMatriculaById(id)) != null) {
-                            System.out.println(bl.getMatriculaById(id));
-                        }
-                    }
-                    case 0 -> {
-                        salir = true;
-                    }
+                    case "1" -> editMatricula();
+                    case "2" -> eliminarMatricula(sc);
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Debe introducir un número");
-            } catch (ClassNotFoundException s) {
-                System.out.println("No se pudo obtener ningun dato");
+                menuBuscarMatricula(sc);
             }
-
         }
+    }
+
+    public void editMatricula() {
 
     }
 
+
+    private void menuBuscarMatricula(Scanner sc) {
+        var menu = """
+                =========================================
+                 
+                              Matrículas
+                 
+                =========================================               
+                0 = salir
+                                
+                1 = Buscar por DNI de Profesor
+                                
+                2 = Buscar por DNI de Alumno
+                                
+                3 = Buscar por ID de Matrícula
+                                
+                ========================================""";
+
+
+        var salir = false;
+        while (!salir) {
+            System.out.println(menu);
+            var eleccion = seleccionarOpcion(sc);
+            switch (eleccion) {
+                case 1 -> buscarMatriculaDNIProfesor(sc);
+            }
+        }
+    }
+
+    private void eliminarRegistro(Scanner sc) {
+        var menu = """
+                =========================================
+                                
+                0 = salir
+                                
+                1 = eliminar Profesor
+                                
+                2 = eliminar Alumno
+                                
+                3 = eliminar Matrícula
+                                
+                ========================================""";
+        var salir = false;
+        while (!salir) {
+            salir = menuEliminar(sc.next());
+            System.out.println(menu);
+
+        }
+    }
+
+    private boolean menuEliminar(String eleccion) {
+        var salir = false;
+        Scanner sc = new Scanner(System.in);
+        try {
+            switch (eleccion) {
+                case "1" -> eliminarProfesor(sc);
+                case "2" -> eliminarAlumno(sc);
+                case "3" -> eliminarMatricula(sc);
+                case "0" -> salir = true;
+            }
+
+
+        } catch (NumberFormatException e) {
+            System.out.println("Debe introducir un número");
+
+        }
+        return salir;
+
+    }
 
     /**
      * Método que se encarga de, dado un entero correspondiente a una de las tres tablas que se encuentran
@@ -223,20 +346,31 @@ public class menu {
                 try {
                     switch (eleccion) {
                         case 1 -> {
-                            bl.listarTabla("Profesores");
+                            var profesores = ProfesorDAO.GetProfesores();
+                            for (Profesor prof : profesores) {
+                                System.out.println(prof);
+                            }
                         }
                         case 2 -> {
-                            bl.listarTabla("Alumnos");
+                            List<Alumno> alumnos = AlumnoDAO.GetALumnos();
+                            for (Alumno alumno : alumnos) {
+                                System.out.println(alumno);
+                            }
+
                         }
                         case 3 -> {
-                            bl.listarTabla("Matriculas");
+                            var matriculas = MatriculasDAO.GetMatriculas();
+                            for (Matricula mat :
+                                    matriculas) {
+                                System.out.println(mat);
+                            }
 
                         }
                         case 0 -> {
                             salir = true;
                         }
                     }
-                } catch (ClassNotFoundException f) {
+                } catch (Exception f) {
                     System.out.println("No se pudieron recoger los datos");
                 }
 
@@ -248,40 +382,95 @@ public class menu {
 
     }
 
-    private void eliminarRegistro(Scanner sc) {
-        System.out.println("inserta el nombre de la tabla en la que se encuentra el registro que desea eliminar");
-        var nombreTabla = sc.next();
 
-        if (bl.gestion.testIfExists(nombreTabla)) {
+    /**
+     * Se encarga de pedir a la capa DAL que elimine un objeto de la base de datos
+     *
+     * @param sc
+     */
+    private void eliminarProfesor(Scanner sc) {
+        boolean salir = false;
+
+        while (!salir) {
             try {
-                System.out.println("inserta el número de identificacion del registro que desea eliminar");
-                int id = Integer.parseInt(sc.next());
-                bl.gestion.delete(nombreTabla, id);
-                System.out.println("Se eliminó el registro con número de identificación "+id);
-            } catch (NumberFormatException e) {
-                System.out.println("El identificador debe ser un numero entero, por lo ue no se eliminó ningun registro de la base de datos");
+                System.out.println("Escribe el dni del profesor que deseas eliminar");
+                var id = sc.next();
+                var profesor = ProfesorDAO.GetProfesorById(id);
+                MongoDAL.deleteObject(profesor);
+                salir = true;
+            } catch (Exception e) {
+                System.out.println("No existe ningun registro con ese DNI");
             }
-
         }
-
     }
 
-    private String formarFecha(String year, String month, String day) throws NumberFormatException{
+
+    /**
+     * Se encarga de pedirle a la clase DAL que elimine un registro de la tabla alumnos de la base de datos
+     *
+     * @param sc
+     */
+    private void eliminarAlumno(Scanner sc) {
+        boolean salir = false;
+
+        while (!salir) {
+            try {
+                var id = sc.next();
+                var alumno = AlumnoDAO.GetAlumnoById(id);
+                MongoDAL.deleteObject(alumno);
+            } catch (Exception e) {
+                System.out.println("No existe ningun Alumno con ese DNI en nuestro registro");
+            }
+        }
+    }
+
+
+    /**
+     * Se encarga de pedir a la capa DAL que elimine un registro de la tabla mat4riculas de la base de datos.
+     *
+     * @param sc
+     */
+    private void eliminarMatricula(Scanner sc) {
+        boolean salir = false;
+
+        while (!salir) {
+            try {
+                var id = Integer.parseInt(sc.next());
+                var matricula = MatriculasDAO.GetMatriculaById(id);
+                MongoDAL.deleteObject(matricula);
+            } catch (NumberFormatException e) {
+                System.out.println("Debe introducir un número");
+            }
+        }
+    }
+
+
+    /**
+     * Método que dados 3 Strings forma una fecha con formato yyyy-MM-dd
+     *
+     * @param year
+     * @param month
+     * @param day
+     * @return una cadena que representa la fecha
+     * @throws NumberFormatException
+     */
+    private String formarFecha(String year, String month, String day) throws NumberFormatException {
         String fecha = "";
         int _year = Integer.parseInt(year);
-        if(_year >= 1960 && _year <= Date.from(Instant.ofEpochSecond(System.currentTimeMillis())).getYear()){
-            fecha+=year+"-";
+        if (_year >= 1960 && _year <= Date.from(Instant.ofEpochSecond(System.currentTimeMillis())).getYear()) {
+            fecha += year + "-";
         }
-       try{
-           MonthDay.of(Month.of(Integer.parseInt(month)), Integer.parseInt(day));
-           fecha+=month+"-"+day;
-       }
-       catch(ArrayIndexOutOfBoundsException e){
-           System.out.println("La fecha no es correcta");
-       };
+        try {
+            MonthDay.of(Month.of(Integer.parseInt(month)), Integer.parseInt(day));
+            fecha += month + "-" + day;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("La fecha no es correcta");
+        }
+        ;
 
         return fecha;
     }
+
     private void menuModificarRegistro(Scanner sc) {
         var menu = format("""
                 =========================================
@@ -294,27 +483,19 @@ public class menu {
                                 
                 ========================================""");
         var salir = false;
-        while(!salir) {
+        while (!salir) {
             System.out.println(menu);
 
             var eleccion = seleccionarOpcion(sc);
             switch (eleccion) {
                 case 1 -> {
-                    if (bl.editProfesor(getDatosProfesorCambiar(sc))) {
-                        System.out.println("Se modificó el Profesor con éxito");
-                    }
-                    ;
+                    MongoDAL.editObject(getDatosProfesorCambiar(sc));
                 }
                 case 2 -> {
-                    if (bl.editAlumno(getDatosAlumnoCambiar(sc))) {
-                        System.out.println("Se modificó el registro del Alumno");
-                    }
+                    MongoDAL.editObject(getDatosAlumnoCambiar(sc));
                 }
                 case 3 -> {
-                    if (bl.editMatricula(getDatosMatriculaCambiar(sc))) {
-                        System.out.println("Se modificó la matrícula con éxito");
-                    }
-                    ;
+                    MongoDAL.editObject(getDatosMatriculaCambiar(sc));
                 }
 
             }
@@ -331,20 +512,25 @@ public class menu {
                 2 = insertar Alumno
                                 
                 3 = insertar Matrícula
-                
+                                
                 0 = Salir
                                 
                 ========================================""");
 
         var id = 0;
         var salir = false;
-        while(!salir){
+        while (!salir) {
             System.out.println(menu);
-            var filas = 0;
             var eleccion = seleccionarOpcion(sc);
             switch (eleccion) {
                 case 1 -> {
-                    MongoDAL.
+                    try {
+                        MongoDAL.insertObject(getDatosProfesorNuevo(sc));
+                        System.out.println("Se insertaron los datos con éxito");
+                    } catch (Exception e) {
+                        System.out.println("No se pudieron insertar los datos");
+                    }
+
                     //filas = bl.insertProfesor(getDatosProfesorNuevo(sc));
                     //if(filas > 0){
                     //    System.out.println("Se insertaron los datos con éxito");
@@ -359,37 +545,53 @@ public class menu {
                     //}
                 }
                 case 2 -> {
-
-                    var datos = new String[3];
-                    var lista = (getDatosAlumnoNuevo(sc));
-                    for (int i = 0 ; i < lista.size(); i++) {
-                        datos[i] = lista.get(i);
-                    }
-                    filas = bl.insertAlumno(datos);
-                    if(filas > 0){
+                    try {
+                        MongoDAL.insertObject(getDatosAlumnoNuevo(sc));
                         System.out.println("Se insertaron los datos con éxito");
-
-                        var alumno = bl.getAlumnoById(++bl.cantidadAlumnos);
-                        System.out.println(alumno);
-
+                    } catch (Exception e) {
+                        System.out.println("No se pudieron insertar los datos");
                     }
                 }
+
+                //{
+                //var datos = new String[3];
+                //var lista = (getDatosAlumnoNuevo(sc));
+                //for (int i = 0 ; i < lista.size(); i++) {
+                //    datos[i] = lista.get(i);
+                //}
+                //filas = bl.insertAlumno(datos);
+                //if(filas > 0){
+                //    System.out.println("Se insertaron los datos con éxito");
+//
+                //    var alumno = bl.getAlumnoById(++bl.cantidadAlumnos);
+                //    System.out.println(alumno);
+//
+                //}
+                //}
                 case 3 -> {
-                    filas = bl.insertMatricula(getDatosMatriculaNuevo(sc));
-                    if(filas > 0){
+                    try {
+                        MongoDAL.insertObject(getDatosMatriculaNuevo(sc));
                         System.out.println("Se insertaron los datos con éxito");
-                        try {
-                            bl.cantidadMatriculas++;
-                            id = bl.cantidadMatriculas;
-                            var matricula = bl.getProfesorById(id);
-                            System.out.println(matricula);
-                        } catch (ClassNotFoundException e) {
-                            System.out.println("No se encontró el registro que buscaba");
-                        }
+                    } catch (Exception e) {
+                        System.out.println("No se pudieron insertar los datos");
                     }
                 }
+                //{
+                //    filas = bl.insertMatricula(getDatosMatriculaNuevo(sc));
+                //    if(filas > 0){
+                //        System.out.println("Se insertaron los datos con éxito");
+                //        try {
+                //            bl.cantidadMatriculas++;
+                //            id = bl.cantidadMatriculas;
+                //            var matricula = bl.getProfesorById(id);
+                //            System.out.println(matricula);
+                //        } catch (ClassNotFoundException e) {
+                //            System.out.println("No se encontró el registro que buscaba");
+                //        }
+                //    }
+                //}
                 case 0 -> {
-                    salir =true;
+                    salir = true;
                 }
 
             }
@@ -406,21 +608,108 @@ public class menu {
      * @param sc
      * @return
      */
-    private String[] getDatosMatriculaNuevo(Scanner sc) {
+    private Matricula getDatosMatriculaNuevo(Scanner sc) {
         sc = new Scanner(System.in);
-        String[] datos = new String[4];
-        System.out.println("introduzca el id del Profesor que imparte la asignatura");
-        datos[0] = sc.nextLine();
-        System.out.println("introduzca el id del Alumno");
-        datos[1] = sc.nextLine();
+        Matricula datos = new Matricula();
+
+        boolean salir = false;
+        //volveremos a pedir el dni del profesor mientras no se introduzca un
+        while (!salir) {
+            try {
+                System.out.println("introduzca el DNI del Profesor que imparte la asignatura");
+                var dni = sc.nextLine();
+                while (!dni.matches("[0-9]{8}[A-Z]")) {
+                    System.out.println("El DNI introducido no es válido");
+                    System.out.println("Introduzca el DNI del profesor"
+                            + " (debe ser un número de 8 cifras junto con una letra mayúscula)");
+                    dni = sc.nextLine();
+                }
+
+                ProfesorDAO.GetProfesorById(dni);//Comprobamos que el profesor existe
+                datos.setDniProfesor(dni);
+                salir = true;
+            } catch (Exception e) {
+                salir = false;
+                System.out.println("El profesor no existe en nuestro registro");
+            }
+        }
+        salir = false;
+        System.out.println("introduzca el DNI del Alumno");
+        //volveremos a pedir el dni del alumno mientras no se introduzca un parámetro válido
+        while (!salir) {
+            try {
+                var dni = sc.nextLine();
+                while (!dni.matches("[0-9]{8}[A-Z]")) {
+                    System.out.println("El DNI introducido no es válido");
+                    System.out.println("Introduzca el DNI del alumno"
+                            + " (debe ser un número de 8 cifras junto con una letra mayúscula)");
+                    dni = sc.nextLine();
+                }
+                AlumnoDAO.GetAlumnoById(dni);//Comprobamos que el alumno existe
+
+                datos.setDniAlumno(dni);
+                salir = true;
+            } catch (Exception e) {
+                salir = false;
+                System.out.println("El alumno no existe en nuestro registro");
+            }
+        }
         System.out.println("introduzca el nombre de la asignatura");
-        datos[2] = sc.nextLine();
+        datos.setAsignatura(eleccionAsignatura());
         System.out.println("introduzca el numero del curso");
-        datos[3] = sc.nextLine();
+        salir = false;
+        //volveremos a pedir el curso mientras no se introduzca un numero entero
+        while (!salir) {
+            try {
+                var curso = Integer.parseInt(sc.next());
+                datos.setCurso(curso);
+                salir = true;
+            } catch (NumberFormatException e) {
+                System.out.println("El curso debe ser un numero entero");
+            }
+        }
 
         return datos;
     }
 
+
+    private String eleccionAsignatura(){
+
+        var r ="PROG|BBDD|DEINT|FOL|EIEMP|ACDAT|PMDMO|PSPRO";
+        var real = r.split("|");
+        var sc = new Scanner(System.in);
+        var asignatura = "0";
+        while (!asignatura.matches("[1-9]")){
+            asignatura = sc.nextLine();
+
+            System.out.println("Introduzca el nombre de la asignatura");
+            System.out.println("1. Programación");
+            System.out.println("2. Bases de datos");
+            System.out.println("3. Diseño de interfaces");
+            System.out.println("4. Empresa");
+            System.out.println("5. Formación y orientación laboral");
+            System.out.println("6. Empresa e iniciativa emprendedora");
+            System.out.println("7. Acceso a datos");
+            System.out.println("8. Programación multimedia y dispositivos móviles");
+            System.out.println("9. Programación de servicios y procesos");
+            switch (asignatura){
+                case "1" -> asignatura = real[0];
+                case "2" -> asignatura = real[1];
+                case "3" -> asignatura = real[2];
+                case "4" -> asignatura = real[3];
+                case "5" -> asignatura = real[4];
+                case "6" -> asignatura = real[5];
+                case "7" -> asignatura = real[6];
+                case "8" -> asignatura = real[7];
+                case "9" -> asignatura = real[8];
+                default -> {
+                    System.out.println("La asignatura introducida no es válida");
+                    asignatura = "0";
+                }
+            }
+        }
+        return asignatura;
+    }
 
     /**
      * Método que se encarga de recoger por teclado los datos de un nuevo Alumno
@@ -430,24 +719,38 @@ public class menu {
      * @param sc
      * @return
      */
-    private List<String> getDatosAlumnoNuevo(Scanner sc) {
+    private Alumno getDatosAlumnoNuevo(Scanner sc) {
         sc = new Scanner(System.in);
-        List<String> datos = new ArrayList<>();
+        Alumno datos = new Alumno();
 
+        System.out.println("introduzca el DNI del Alumno" +
+                "(debe ser un número de 8 cifras seguido de una letra mayúscula)");
+        var dni = sc.nextLine();
+        while (!dni.matches("[0-9]{8}[A-Z]")) {
+            System.out.println("El DNI introducido no es válido");
+            System.out.println("Introduzca el DNI del profesor"
+                    + " (debe ser un número de 8 cifras junto con una letra mayúscula)");
+            dni = sc.nextLine();
+        }
+        datos.setDni(dni);
         System.out.println("introduzca el nombre del Alumno");
-        datos.add(sc.nextLine());
+        datos.setNombre(sc.nextLine());
         System.out.println("introduzca los apellidos del Alumno");
-        datos.add(sc.nextLine());
-        try {
-            System.out.println("introduzca el año de nacimiento del alumno");
-            var year = sc.nextLine();
-            System.out.println("introduzca el mes de nacimiento del alumno");
-            var month = sc.nextLine();
-            System.out.println("introduzca el día de nacimiento del alumno");
-            var day = sc.nextLine();
-            datos.add(formarFecha(year, month, day));
-        }catch(Exception e){
-            System.out.println("Debe introducir una fecha válida");
+        datos.setApellidos(sc.nextLine());
+        boolean salir = false;
+        while (!salir) {
+            try {
+                System.out.println("introduzca el año de nacimiento del alumno");
+                var year = sc.nextLine();
+                System.out.println("introduzca el mes de nacimiento del alumno");
+                var month = sc.nextLine();
+                System.out.println("introduzca el día de nacimiento del alumno");
+                var day = sc.nextLine();
+                datos.setFechaNacimiento(LocalDate.parse(formarFecha(year, month, day)));
+                salir = true;
+            } catch (Exception numberFormatException) {
+                System.out.println("Debe introducir una fecha válida");
+            }
         }
         return datos;
     }
@@ -461,33 +764,70 @@ public class menu {
      * @param sc
      * @return
      */
-    private String[] getDatosProfesorNuevo(Scanner sc) {
+    private Profesor getDatosProfesorNuevo(Scanner sc) {
         sc.nextLine();
-        String[] datos = new String[4];
+        Profesor profesor = new Profesor();
+        System.out.println("Introduzca el DNI del profesor"
+                + " (debe ser un número de 8 cifras junto con una letra mayúscula)");
+        //compruebo que el dni introducido tiene 8 cifras y una letra mayúscula
+        var dni = sc.nextLine();
+        while (!dni.matches("[0-9]{8}[A-Z]")) {
+            System.out.println("El DNI introducido no es válido");
+            System.out.println("Introduzca el DNI del profesor"
+                    + " (debe ser un número de 8 cifras junto con una letra mayúscula)");
+            dni = sc.nextLine();
+        }
+        try {
+            //compruebo que el dni no existe en la base de datos
+            var profesorExistente = ProfesorDAO.GetProfesorById(dni);
+            if (profesorExistente != null)
+                System.out.println("El DNI introducido ya existe en la base de datos");
+        } catch (Exception e) {
+            profesor.setDni(dni);
+        }
+
+
         System.out.println("introduzca el nombre del Profesor");
-        datos[0] = sc.nextLine();
+        profesor.setNombre(sc.nextLine());
         System.out.println("introduzca los apellidos del Profesor");
-        datos[1] = sc.nextLine();
+        profesor.setApellidos(sc.nextLine());
         var salir = false;
-        while(!salir) {
+        //Recojo la fecha de nacimiento del profesor
+        while (!salir) {
             try {
+                //Recojo el año de nacimiento del profesor
                 System.out.println("introduzca el año de nacimiento del profesor");
                 var year = sc.nextLine();
+                //Recojo el mes de nacimiento del profesor
                 System.out.println("introduzca el mes de nacimiento del profesor");
                 var month = sc.nextLine();
+                //Recojo el día de nacimiento del profesor
                 System.out.println("introduzca el día de nacimiento del profesor");
                 var day = sc.nextLine();
-                datos[2] = formarFecha(year, month, day);
+                //Formateo la fecha y la asigno al profesor
+                profesor.setFechaNacimiento(LocalDate.parse(formarFecha(year, month, day)));
 
                 System.out.println("introduzca los años de antigüedad en la docencia");
-                datos[3] = sc.nextLine();
+                //Compruebo que la antigüedad sea un número entero
+                //y mayor que 0
+                boolean isNumeroBien = false;
+                while (!isNumeroBien) {
+                    var antiguedad = Integer.parseInt(sc.nextLine());
+                    if (antiguedad < 0) {
+                        System.out.println("La antigüedad debe ser mayor que 0");
+                    } else {
+                        profesor.setAntiguedad(antiguedad);
+                        isNumeroBien = true;
+                    }
+                }
+
                 salir = true;
             } catch (Exception e) {
                 System.out.println("Algo salió mal, vuelva a introducir la fecha..");
             }
 
         }
-        return datos;
+        return profesor;
     }
 
 
@@ -497,24 +837,27 @@ public class menu {
      * @param sc
      * @return
      */
-    private String[] getDatosProfesorCambiar(Scanner sc) {
-        List<String> _datos = new ArrayList<>();
+    private Profesor getDatosProfesorCambiar(Scanner sc) {
+        Profesor _datos = new Profesor();
+        boolean salir = false;
+        //volveremos a pedir el id del profesor mientras no se introduzca un numero entero
+        while (!salir) {
+            try {
+                System.out.println("introduce el DNI del Profesor");
+                var id = sc.next();
+                var supp = ProfesorDAO.GetProfesorById(id);//Comprobamos que el profesor existe
 
-        System.out.println("introduce el número de identificación del Profesor");
-        try {
-            var id = Integer.parseInt(sc.nextLine());
-            System.out.println(bl.getProfesorById(id));
-            var datosProfesor = getDatosProfesorNuevo(sc);
-            for (String dato : datosProfesor) {
-                _datos.add(dato);
+                _datos = getDatosProfesorNuevo(sc);
+                _datos.setDni(supp.getDni());
+                _datos.setCreatedAt(Timestamp.from(Instant.now()));
+                salir = true;
+            } catch (NumberFormatException e) {
+                System.out.println("El id del profesor debe ser un numero entero");
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (NumberFormatException e) {
-            System.out.println("El identificador del Profesor debe ser un numero entero");
         }
-        return (String[]) _datos.toArray();
+        return _datos;
     }
+
 
     /**
      * Método que se encarga de recoger el identificador del Profesor
@@ -522,51 +865,45 @@ public class menu {
      * @param sc
      * @return
      */
-    private String[] getDatosAlumnoCambiar(Scanner sc) {
+    private Alumno getDatosAlumnoCambiar(Scanner sc) {
         sc = new Scanner(System.in);
-        String[] datos = new  String[4];
 
         System.out.println("introduce el número de identificación del ALumno");
-        var datosAlumno = new String[4];
+        var datosAlumno = new Alumno();
         try {
-            var id = Integer.parseInt(sc.nextLine());
-            System.out.println(bl.getAlumnoById(id));
+            var id = sc.nextLine();
+            System.out.println(AlumnoDAO.GetAlumnoById(id));
 
-            var lista = new ArrayList<String>();
-            lista.add(String.valueOf(id));
-            lista.addAll(getDatosAlumnoNuevo(sc));
-
-
-            for (int i  = 0 ; i < lista.size();i++) {
-                datosAlumno[i] = lista.get(i);
-            }
+            datosAlumno = getDatosAlumnoNuevo(sc);
+            datosAlumno.setDni(id);
         } catch (NumberFormatException e) {
-            System.out.println("El identificador del Profesor debe ser un numero entero");
+            System.out.println("El identificador del ALumno debe ser un numero entero");
         }
         return datosAlumno;
     }
 
+
     /**
      * Método que se encarga de recoger el identificador del Profesor
      *
      * @param sc
      * @return
      */
-    private String[] getDatosMatriculaCambiar(Scanner sc) {
-        List<String> _datos = new ArrayList<>();
+    private Matricula getDatosMatriculaCambiar(Scanner sc) {
+        Matricula _datos = new Matricula();
 
-        System.out.println("introduce el número de identificación del Profesor");
+        System.out.println("introduce el número de identificación de la Matricula");
         try {
             var id = Integer.parseInt(sc.nextLine());
-            System.out.println(bl.getMatriculaById(id));
+            System.out.println(MatriculasDAO.GetMatriculaById(id));
             var datosMatricula = getDatosMatriculaNuevo(sc);
-            for (String dato : datosMatricula) {
-                _datos.add(dato);
-            }
+            _datos.setDniAlumno(datosMatricula.getDniAlumno());
+            _datos.setDniProfesor(datosMatricula.getDniProfesor());
+            _datos.setCurso(datosMatricula.getCurso());
         } catch (NumberFormatException e) {
             System.out.println("El identificador del Profesor debe ser un numero entero");
         }
-        return (String[]) _datos.toArray();
+        return _datos;
     }
 
 }

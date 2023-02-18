@@ -1,36 +1,46 @@
 package DAL.Mongo;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
-import org.bson.Document;
-
-import javax.print.Doc;
 
 import static com.mongodb.client.model.Filters.eq;
 
 public class MongoConnection {
 
-    String uri;
+    public static final String URI = "mongodb+srv://yop:Carmelo@cluster0.9aejkfq.mongodb.net/test";
     MongoDatabase database;
 
-    String dbname;
+    public static final String DBNAME = "Colegio";
 
     public MongoConnection(){
-        uri = "mongodb+srv://yop:Carmelo@cluster0.9aejkfq.mongodb.net/test";
-        dbname = "Colegio";
+      // URI = "mongodb+srv://yop:Carmelo@cluster0.9aejkfq.mongodb.net/test";
+      // DBNAME = "Colegio";
+        database  = null;
     }
 
-    public MongoConnection(String uri, String dbname) {
-        this.uri = uri;
-        this.dbname = dbname;
+    public MongoConnection(String URI, String DBNAME) {
+      //  this.URI = URI;
+      //  this.DBNAME = DBNAME;
         database  = null;
     }
 
 
 
-    public void getConnection(){
-        try(MongoClient cliente = MongoClients.create(uri)){
-            database = cliente.getDatabase(dbname);
+    public MongoDatabase getConnection(){
+        database = null;
+        ConnectionString cnst = new ConnectionString(URI);
+        MongoClientSettings cls = MongoClientSettings.builder()
+                .applyConnectionString(cnst)
+                .retryWrites(true)
+                .build();
+        try(MongoClient cliente = MongoClients.create(cls)){
+            database = cliente.getDatabase(DBNAME);
+
+        }catch(Exception e){
+            System.out.println(e.getMessage());
         }
+        return database;
     }
 
 

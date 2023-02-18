@@ -1,27 +1,91 @@
 package EntidadesPersistencia;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 public class Matricula {
+
+    private String _id;
     private int id;
-    private int idProfesor;
-    private int idAlumno;
+    private String dniProfesor;
+    private String dniAlumno;
     private String asignatura;
     private int curso;
 
+    private Timestamp createdAt;
 
-    public Matricula(int id, int idProfesor, int idAlumno, String asignatura, int curso) {
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
         this.id = id;
-        this.idProfesor = idProfesor;
-        this.idAlumno = idAlumno;
+    }
+
+    public String getDniProfesor() {
+        return dniProfesor;
+    }
+
+    public void setDniProfesor(String dniProfesor) {
+        this.dniProfesor = dniProfesor;
+    }
+
+    public String getDniAlumno() {
+        return dniAlumno;
+    }
+
+    public void setDniAlumno(String dniAlumno) {
+        this.dniAlumno = dniAlumno;
+    }
+
+    public String getAsignatura() {
+        return asignatura;
+    }
+
+    public void setAsignatura(String asignatura) {
+        this.asignatura = asignatura;
+    }
+
+    public int getCurso() {
+        return curso;
+    }
+
+    public void setCurso(int curso) {
+        this.curso = curso;
+    }
+
+    public Matricula(int id, String dniProfesor, String dniAlumno, String asignatura, int curso) {
+        this.id = id;
+        this.dniProfesor = dniProfesor;
+        this.dniAlumno = dniAlumno;
         this.asignatura = asignatura;
         this.curso = curso;
+        createdAt = Timestamp.from(Instant.now());
     }
 
     public Matricula() {
         this.id = 0;
-        this.idProfesor = 0;
-        this.idAlumno = 0;
+        this.dniProfesor = "00000000A";
+        this.dniAlumno = "00000000A";
         this.asignatura = "asignatura";
         this.curso = 0;
+        createdAt = Timestamp.from(Instant.now());
     }
 
     @Override
@@ -30,14 +94,14 @@ public class Matricula {
                 ========================================
                 id = %d
                 
-                idProfesor = %d
+                dni Profesor = %s
                 
-                idAlumno = %d
+                dni Alumno = %s
                 
                 asignatura = %s
                 
                 curso = %d
-                ========================================""", id, idProfesor, idAlumno, asignatura, curso);
+                ========================================""", id, dniProfesor, dniAlumno, asignatura, curso);
 
     }
 }
