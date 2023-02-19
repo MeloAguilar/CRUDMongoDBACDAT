@@ -97,7 +97,9 @@ public class Alumno {
                 apellidos = %s
                 
                 fechaNacimiento = %s
-                ========================================""", dni, nombre, apellidos, fechaNacimiento.toString());
+                
+                creado el: %s
+                ========================================""", dni, nombre, apellidos, fechaNacimiento.toString(), createdAt.toString());
 
     }
 

@@ -101,7 +101,9 @@ public class Matricula {
                 asignatura = %s
                 
                 curso = %d
-                ========================================""", id, dniProfesor, dniAlumno, asignatura, curso);
+                
+                creado el = %s
+                ========================================""", id, dniProfesor, dniAlumno, asignatura, curso, createdAt.toString());
 
     }
 }

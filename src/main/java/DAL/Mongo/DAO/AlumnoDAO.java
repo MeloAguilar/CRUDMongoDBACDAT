@@ -1,24 +1,18 @@
 package DAL.Mongo.DAO;
 
-import DAL.Mongo.MongoConnection;
 import DAL.Mongo.MongoDAL;
 import EntidadesPersistencia.Alumno;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import org.bson.Document;
-import org.bson.io.BasicOutputBuffer;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static DAL.Mongo.MongoDAL.*;
 import static com.mongodb.client.model.Filters.eq;
 
 public class AlumnoDAO {
@@ -26,20 +20,20 @@ public class AlumnoDAO {
      * Se encarga de recoger un documento json dado el nombre de una collection
      * y generar una lista de alumnos.
      *
-     * @return
+     * @return lista completa de alumnos
      */
     public static List<Alumno> GetALumnos() {
         List<Alumno> alumnos = new ArrayList<>();
-        ConnectionString cnst = new ConnectionString(MongoConnection.URI);
+        ConnectionString cnst = new ConnectionString(URI);
         MongoClientSettings cls = MongoClientSettings.builder()
                 .applyConnectionString(cnst)
                 .retryWrites(true)
                 .build();
         try (MongoClient cliente = MongoClients.create(cls)) {
-            var database = cliente.getDatabase(MongoConnection.DBNAME);
+            var database = cliente.getDatabase(DBNAME);
             var collection = database.getCollection("Alumnos");
             var result = collection.find();
-            for (Document doc : collection.find()) {
+            for (Document doc : result) {
                 var alumno = getAlumno(doc, alumnos);
                 if (alumno != null)
                     alumnos.add(alumno);
@@ -54,7 +48,7 @@ public class AlumnoDAO {
     /**
      * Se encaga de recoger un Documento Mongo y generar un objeto Alumno
      *
-     * @return
+     * @return un alumno con los datos del documento
      */
     private static Alumno getAlumno(Document result, List<Alumno> alumnos) {
         var alumno = new Alumno();
@@ -82,7 +76,7 @@ public class AlumnoDAO {
         alumno.setCreatedAt(timestamp);
         //Compruebo si se ha introducido una lista de asignaturas y que no esté vacía
         if (alumnos != null)
-            if(alumnos.size() > 0) {
+            if (alumnos.size() > 0) {
                 //Compruebo que el alumno no esté repetido y que sea el más reciente
                 for (int i = 0; i < alumnos.size(); i++) {
                     //Si el alumno está repetido y es más antiguo, lo elimino
@@ -104,15 +98,17 @@ public class AlumnoDAO {
      */
     public static Alumno GetAlumnoById(String idAlumno) {
         Alumno alumno = new Alumno();
-        ConnectionString cnst = new ConnectionString(MongoConnection.URI);
+        ConnectionString cnst = new ConnectionString(URI);
         MongoClientSettings cls = MongoClientSettings.builder()
                 .applyConnectionString(cnst)
                 .retryWrites(true)
                 .build();
         try (MongoClient cliente = MongoClients.create(cls)) {
-            var database = cliente.getDatabase(MongoConnection.DBNAME);
+            var database = cliente.getDatabase(DBNAME);
             var collection = database.getCollection("Alumnos");
-            Document result = collection.find(eq("dni", idAlumno)).first();
+            FindIterable<Document> findresult = collection.find(eq("dni", idAlumno));
+            //Ordeno los resultados por fecha de creación y cojo el primero (el más reciente)
+            Document result = findresult.sort(new Document("createdAt", -1)).first();
             if (result != null) {
                 alumno = getAlumno(result, null);
             }
@@ -130,7 +126,14 @@ public class AlumnoDAO {
      */
     public static void insertAlumno(Alumno alumno) {
         try {
-            MongoCollection<Document> collection = new MongoConnection().getConnection().getCollection("Alumnos");
+            ConnectionString cnst = new ConnectionString(URI);
+            MongoClientSettings cls = MongoClientSettings.builder()
+                    .applyConnectionString(cnst)
+                    .retryWrites(true)
+                    .build();
+            MongoClient cliente = MongoClients.create(cls);
+            MongoDatabase database = cliente.getDatabase(DBNAME);
+            MongoCollection<Document> collection = database.getCollection("Alumnos");
             alumno.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             Document doc = new Document()
                     .append("dni", alumno.getDni())
@@ -147,5 +150,40 @@ public class AlumnoDAO {
 
 
 
+    public static List<Alumno> getEntradasDeAlumno(Alumno alumno) {
+        List<Alumno> alumnos = new ArrayList<>();
+        ConnectionString cnst = new ConnectionString(URI);
+        MongoClientSettings cls = MongoClientSettings.builder()
+                .applyConnectionString(cnst)
+                .retryWrites(true)
+                .build();
+        try (MongoClient cliente = MongoClients.create(cls)) {
+            var db = cliente.getDatabase(DBNAME);
+            var collection = db.getCollection("Alumnos");
+            var result = collection.find(eq("dni", alumno.getDni()));
+            for (Document doc : result) {
+                alumnos.add(getAlumno(doc, null));
+            }
+        }
+        return alumnos;
+    }
 
+
+    public static List<Alumno> getAlumnosPorNombre(String nombre) {
+        List<Alumno> alumnos = new ArrayList<>();
+        ConnectionString cnst = new ConnectionString(URI);
+        MongoClientSettings cls = MongoClientSettings.builder()
+                .applyConnectionString(cnst)
+                .retryWrites(true)
+                .build();
+        try (MongoClient cliente = MongoClients.create(cls)) {
+            var db = cliente.getDatabase(DBNAME);
+            var collection = db.getCollection("Alumnos");
+            var result = collection.find(eq("nombre", nombre));
+            for (Document doc : result) {
+                alumnos.add(getAlumno(doc, null));
+            }
+        }
+        return alumnos;
+    }
 }

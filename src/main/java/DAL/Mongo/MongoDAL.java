@@ -1,44 +1,40 @@
 package DAL.Mongo;
 
 import DAL.Mongo.DAO.AlumnoDAO;
+import DAL.Mongo.DAO.MatriculasDAO;
 import DAL.Mongo.DAO.ProfesorDAO;
 import EntidadesPersistencia.Alumno;
 import EntidadesPersistencia.Matricula;
 import EntidadesPersistencia.Profesor;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.client.*;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.DeleteOptions;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
 public class MongoDAL {
 
+    public static final String URI = "mongodb+srv://yop:Carmelo@cluster0.9aejkfq.mongodb.net/test";
 
-    /**
-     * Método que se encarga d recoger un objeto mongoCollection y devolverlo para su uso
-     *
-     * @param collectionName
-     * @return coleccion de todos los registros del Documento no relacional
-     */
-    public static MongoCollection<Document> GetCollection(String collectionName) {
-        MongoConnection cnn = new MongoConnection();
-        MongoDatabase db = cnn.getConnection();
-        return db.getCollection(collectionName);
-    }
+
+    public static final String DBNAME = "Colegio";
 
 
     /**
      * Método que sirve para comprobar que un string es una fecha tipo timestamp
+     *
      * @param fecha
      * @return
      */
-    public static Timestamp GetTimestamp(String fecha){
+    public static Timestamp GetTimestamp(String fecha) {
         Timestamp timestamp = null;
         try {
             timestamp = Timestamp.valueOf(fecha);
@@ -51,101 +47,6 @@ public class MongoDAL {
     }
 
 
-
-
-
-
-
-
-
-    /**
-     * Se encarga de recoger un documento json dado el nombre de una collection
-     * y generar una lista de matrículas.
-     *
-     * @return
-     */
-    public static Matricula GetMatricula(String idAlumno, String idProfesor) {
-        ObjectMapper mapper = new ObjectMapper();
-        MongoCollection<Document> collection = GetCollection("Matriculas");
-        Matricula matricula = null;
-        MongoCursor<Document> result = collection.find(eq("id", idAlumno)).iterator();
-        try {
-            while (result.hasNext()) {
-                String json = result.next().toJson();
-                matricula = mapper.readValue(json, Matricula.class);
-                if (matricula.getDniProfesor() == idProfesor) {
-                    break;
-                }
-            }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        } finally {
-            result.close();
-        }
-
-        return matricula;
-    }
-
-
-
-    /**
-     * Se encarga de recoger un documento json dado el nombre de una collection
-     * y generar una lista de alumnos.
-     *
-     * @return
-     */
-    public static List<Matricula> GetMatriculasALumno(String idAlumno) {
-        ObjectMapper mapper = new ObjectMapper();
-        MongoCollection<Document> collection = GetCollection("Matriculas");
-        List<Matricula> matriculas = new ArrayList<>();
-        MongoCursor<Document> result = collection.find(eq("dniAlumno", idAlumno)).iterator();
-        try {
-            while (result.hasNext()) {
-                String json = result.next().toJson();
-                Matricula matricula = mapper.readValue(json, Matricula.class);
-                matriculas.add(matricula);
-            }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        } finally {
-            result.close();
-        }
-
-        return matriculas;
-    }
-
-    /**
-     * Se encarga de recoger un documento json dado el nombre de una collection
-     * y generar una lista de alumnos.
-     *
-     * @return
-     */
-    public static List<Matricula> GetMatriculasProfesor(String idProfesor) {
-        ObjectMapper mapper = new ObjectMapper();
-        MongoCollection<Document> collection = GetCollection("Matriculas");
-        List<Matricula> matriculas = new ArrayList<>();
-        MongoCursor<Document> result = collection.find(eq("dniProfesor", idProfesor)).iterator();
-        try {
-            while (result.hasNext()) {
-                String json = result.next().toJson();
-                Matricula matricula = mapper.readValue(json, Matricula.class);
-                matriculas.add(matricula);
-            }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        } finally {
-            result.close();
-        }
-
-        return matriculas;
-    }
-
-
-
-
-
-
-
     /**
      * Se encarga de insertar un objeto en la base de datos
      *
@@ -154,47 +55,23 @@ public class MongoDAL {
     public static void insertObject(Object object) {
         ObjectMapper mapper = new ObjectMapper();
         if (object instanceof Alumno) {
-           AlumnoDAO.insertAlumno((Alumno) object);
+            AlumnoDAO.insertAlumno((Alumno) object);
 
         }
         //si el objeto es instancia de Profesor
         else if (object instanceof Profesor) {
-           ProfesorDAO.insertProfesor((Profesor) object);
+            ProfesorDAO.insertProfesor((Profesor) object);
         }
         //si el objeto es instancia de Matricula
         else if (object instanceof Matricula) {
-            Matricula matricula = (Matricula) object;
-            var collection = GetCollection("Matriculas");
-            try {
-                //insertar matricula
-                collection.insertOne(Document.parse(mapper.writeValueAsString(matricula)));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            MatriculasDAO.insertMatricula((Matricula) object);
         }
     }
 
 
+    public static void editAlumno() {
 
-    private void insertMatricula(Matricula matricula){
-        try{
-            MongoClient mongoClient = MongoClients.create(new MongoConnection().URI);
-            MongoDatabase database = mongoClient.getDatabase("Colegio");
-            MongoCollection<Document> collection = database.getCollection("Matriculas");
-            Document doc = new Document()
-                    .append("id", matricula.getId())
-                    .append("dniAlumno", matricula.getDniAlumno())
-                    .append("dniProfesor", matricula.getDniProfesor())
-                    .append("createdAt", matricula.getCreatedAt().toString());
-            collection.insertOne(doc);
-        }catch(Exception e){
-            System.out.println("Error al insertar la matricula");
-        }
     }
-
-
-
-
 
 
     /**
@@ -203,14 +80,21 @@ public class MongoDAL {
      * @param object objeto que solo puede ser de tipo Alumno, Profesor o Matricula
      */
     public static void editObject(Object object) {
-        ObjectMapper mapper = new ObjectMapper();
+        ConnectionString cnst = new ConnectionString(URI);
+        MongoClientSettings cls = MongoClientSettings.builder()
+                .applyConnectionString(cnst)
+                .retryWrites(true)
+                .build();
+        MongoClient cliente = MongoClients.create(cls);
+        MongoDatabase db = cliente.getDatabase(DBNAME);
         if (object instanceof Alumno) {
             Alumno alumno = (Alumno) object;
-            var collection = GetCollection("Alumnos");
+            var collection = db.getCollection("Alumnos");
             try {
                 //editar alumno
-                collection.replaceOne(eq("id", alumno.getDni()), Document.parse(mapper.writeValueAsString(alumno)));
-            } catch (JsonProcessingException e) {
+                AlumnoDAO.insertAlumno(alumno);
+                System.out.println("nuevo registro editado del alumno con dni: " + alumno.getDni());
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
@@ -218,27 +102,52 @@ public class MongoDAL {
         //si el objeto es instancia de Profesor
         else if (object instanceof Profesor) {
             Profesor profesor = (Profesor) object;
-            var collection = GetCollection("Profesores");
+            var collection = db.getCollection("Profesores");
             try {
                 //editar profesor
-                collection.replaceOne(eq("id", profesor.getDni()), Document.parse(mapper.writeValueAsString(profesor)));
-            } catch (JsonProcessingException e) {
+                ProfesorDAO.insertProfesor(profesor);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
         //si el objeto es instancia de Matricula
         else if (object instanceof Matricula) {
             Matricula matricula = (Matricula) object;
-            var collection = GetCollection("Matriculas");
+            var collection = db.getCollection("Matriculas");
             try {
                 //editar matricula
-                collection.replaceOne(eq("id", matricula.getId()), Document.parse(mapper.writeValueAsString(matricula)));
-            } catch (JsonProcessingException e) {
+                MatriculasDAO.insertMatricula(matricula);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
+
+    public static boolean deleteByString(String collectionName, String _id) {
+        ConnectionString cnst = new ConnectionString(URI);
+        MongoClientSettings cls = MongoClientSettings.builder()
+                .applyConnectionString(cnst)
+                .retryWrites(true)
+                .build();
+        MongoClient cliente = MongoClients.create(cls);
+        MongoDatabase db = cliente.getDatabase(DBNAME);
+        var collection = db.getCollection(collectionName);
+        try {
+            var result = collection.deleteOne(eq("_id", new ObjectId(_id)));
+            if (result.getDeletedCount() > 0) {
+                System.out.println("Se ha eliminado el registro con id: " + _id);
+                return true;
+            } else {
+                System.out.println("No se ha encontrado el registro con id: " + _id);
+                return false;
+
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     /**
      * Se encarga de eliminar un objeto en la base de datos
@@ -246,27 +155,33 @@ public class MongoDAL {
      * @param object objeto que solo puede ser de tipo Alumno, Profesor o Matricula
      */
     public static void deleteObject(Object object) {
-        ObjectMapper mapper = new ObjectMapper();
+        ConnectionString cnst = new ConnectionString(URI);
+        MongoClientSettings cls = MongoClientSettings.builder()
+                .applyConnectionString(cnst)
+                .retryWrites(true)
+                .build();
+        MongoClient cliente = MongoClients.create(cls);
+        MongoDatabase db = cliente.getDatabase(DBNAME);
         if (object instanceof Alumno) {
             Alumno alumno = (Alumno) object;
-            var collection = GetCollection("Alumnos");
+            var collection = db.getCollection("Alumnos");
             //eliminar alumno
-            collection.deleteOne(eq("id", alumno.getDni()), (DeleteOptions) eq("createdAt", alumno.getCreatedAt()));
+            collection.deleteOne(eq("dni", alumno.getDni()), (DeleteOptions) eq("createdAt", alumno.getCreatedAt()));
 
         }
         //si el objeto es instancia de Profesor
         else if (object instanceof Profesor) {
             Profesor profesor = (Profesor) object;
-            var collection = GetCollection("Profesores");
+            var collection = db.getCollection("Profesores");
             //eliminar profesor
-            collection.deleteOne(eq("id", profesor.getDni()), (DeleteOptions) eq("createdAt", profesor.getCreatedAt()));
+            collection.deleteOne(eq("dni", profesor.getDni()), (DeleteOptions) eq("createdAt", profesor.getCreatedAt()));
         }
         //si el objeto es instancia de Matricula
         else if (object instanceof Matricula) {
             Matricula matricula = (Matricula) object;
-            var collection = GetCollection("Matriculas");
+            var collection = db.getCollection("Matriculas");
             //eliminar matricula
-            collection.deleteOne(eq("id", matricula.getId()), (DeleteOptions) eq("createdAt", matricula.getCreatedAt()));
+            collection.deleteOne(eq("dni", matricula.getId()), (DeleteOptions) eq("createdAt", matricula.getCreatedAt()));
         }
 
     }
