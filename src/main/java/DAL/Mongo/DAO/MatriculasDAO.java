@@ -40,24 +40,8 @@ public class MatriculasDAO {
             var collection = database.getCollection("Matriculas");
             var result = collection.find();
             for (Document doc : result) {
-                var matricula = getMatricula(doc, null);
-                if (matricula != null) {
-                    var matriculasDeEsta = GetOcurenciasMatricula(matricula.getId());
-                    //Si hay más de una ocurrencia de la misma matrícula
-                    if (matriculasDeEsta.size() > 1) {
-                        //Compruebo todas las maticulas con el mismo ID
-                        for ( Matricula matricula1 : matriculasDeEsta) {
-                            //Si la fecha de creación de la matricula recogida antes es mayor que la actual
-                            if (matricula1.getCreatedAt().compareTo(matricula.getCreatedAt()) > 0) {
-                                matriculas.remove(matricula);
-                            //Si la fecha de la creacion de la matricula recogida en el bucle foreach es mayor que la matricula recogida antes
-                            }else if(matricula1.getCreatedAt().compareTo(matricula.getCreatedAt()) < 0){
-                                matriculas.remove(matricula1);
-                            }
-
-                        }
-                    }
-                }
+                var matricula = getMatricula(doc, matriculas);
+                if (matricula != null)
                     matriculas.add(matricula);
             }
         }catch (Exception e){
@@ -82,16 +66,18 @@ public class MatriculasDAO {
         matricula.setCurso(result.getInteger("curso"));
         matricula.setCreatedAt(MongoDAL.GetTimestamp(result.get("createdAt").toString()));
 
-        if(matriculas != null){
-            for (Matricula matricula1 : matriculas) {
-                if((matricula1.getId() == matricula.getId()) && Comparator.comparing(Matricula::getCreatedAt).reversed().compare(matricula1, matricula) < 0){
-                    return null;
-                }
-                else if (matricula1.getDniAlumno().equals(matricula.getDniAlumno()) && Comparator.comparing(Matricula::getCreatedAt).reversed().compare(matricula1, matricula) < 0){
-                    matriculas.remove(matricula1);
+
+        if (matriculas != null)
+            if (matriculas.size() > 0) {
+                //Compruebo que el alumno no esté repetido y que sea el más reciente
+                for (int i = 0; i < matriculas.size(); i++) {
+                    //Si el alumno está repetido y es más antiguo, lo elimino
+                    if (matriculas.get(i).getId()==(matricula.getId()) && (matriculas.get(i).getCreatedAt().compareTo(matricula.getCreatedAt()) > 0))
+                        matricula = null;
+                    else if (matriculas.get(i).getId()==(matricula.getId()) && (matriculas.get(i).getCreatedAt().compareTo(matricula.getCreatedAt()) < 0))
+                        matriculas.remove(i);
                 }
             }
-        }
         return matricula;
     }
     /**
@@ -228,7 +214,7 @@ public class MatriculasDAO {
                 .build();
         MongoClient mongoClient = MongoClients.create(cls);
         MongoDatabase database = mongoClient.getDatabase("Colegio");
-MongoCollection<Document> collection = database.getCollection("Matriculas");
+        MongoCollection<Document> collection = database.getCollection("Matriculas");
         List<Matricula> matriculas = new ArrayList<>();
         FindIterable<Document> result = collection.find(eq("dniProfesor", idProfesor));
         for (Document document : result) {
@@ -246,7 +232,7 @@ MongoCollection<Document> collection = database.getCollection("Matriculas");
      *
      * @return
      */
-    public static List<Matricula> GetMatriculasALumno(String idAlumno) {
+    public static List<Matricula> GetMatriculasAlumno(String idAlumno) {
         List<Matricula> matriculas = new ArrayList<>();
         ConnectionString cnst = new ConnectionString(URI);
         MongoClientSettings cls = MongoClientSettings.builder()
@@ -274,12 +260,16 @@ MongoCollection<Document> collection = database.getCollection("Matriculas");
                 .build();
         MongoClient mongoClient = MongoClients.create(cls);
         MongoDatabase database = mongoClient.getDatabase("Colegio");
+
         MongoCollection<Document> collection = database.getCollection("Matriculas");
         MongoCursor<Document> result = collection.find(eq("id", id)).iterator();
+
 
         while (result.hasNext()) {
             matriculas.add(getMatricula(result.next(), null));
         }
+
+
 
         return matriculas;
     }
