@@ -7,8 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
+import com.mongodb.client.model.DeleteOptions;
 import org.bson.Document;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -38,9 +41,27 @@ public class MatriculasDAO {
             var result = collection.find();
             for (Document doc : result) {
                 var matricula = getMatricula(doc, null);
-                if (matricula != null)
+                if (matricula != null) {
+                    var matriculasDeEsta = GetOcurenciasMatricula(matricula.getId());
+                    //Si hay más de una ocurrencia de la misma matrícula
+                    if (matriculasDeEsta.size() > 1) {
+                        //Compruebo todas las maticulas con el mismo ID
+                        for ( Matricula matricula1 : matriculasDeEsta) {
+                            //Si la fecha de creación de la matricula recogida antes es mayor que la actual
+                            if (matricula1.getCreatedAt().compareTo(matricula.getCreatedAt()) > 0) {
+                                matriculas.remove(matricula);
+                            //Si la fecha de la creacion de la matricula recogida en el bucle foreach es mayor que la matricula recogida antes
+                            }else if(matricula1.getCreatedAt().compareTo(matricula.getCreatedAt()) < 0){
+                                matriculas.remove(matricula1);
+                            }
+
+                        }
+                    }
+                }
                     matriculas.add(matricula);
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
         return matriculas;
@@ -109,6 +130,20 @@ public class MatriculasDAO {
     }
 
 
+    /**
+     * Se encarga de recoger un documento json dado el id de una matricula
+     * y generar un objeto matricula.
+     *
+     * <pre>
+     * id debe coincidir con la key id de la tabla collection matriculas
+     * id debe ser un entero positivo.
+     * </pre>
+     * <post>
+     *     Si no se encuentra la matricula con el id dado, se devuelve null
+     * </post>
+     * @param id
+     * @return
+     */
     public static Matricula GetMatriculaById(int id) {
         ConnectionString cnst = new ConnectionString(URI);
         MongoClientSettings cls = MongoClientSettings.builder()
@@ -124,7 +159,41 @@ public class MatriculasDAO {
     }
 
 
+    /**
+     * Se encarga de insertar una matricula en la base de datos
+     * @param matricula
+     */
     public static void insertMatricula(Matricula matricula){
+        try{
+            MongoClient mongoClient = MongoClients.create(URI);
+            MongoDatabase database = mongoClient.getDatabase("Colegio");
+            MongoCollection<Document> collection = database.getCollection("Matriculas");
+            var idMat = GetMatriculas().size();
+            Document doc = new Document()
+                    .append("id", (idMat + 1))
+                    .append("dniAlumno", matricula.getDniAlumno())
+                    .append("dniProfesor", matricula.getDniProfesor())
+                    .append("asignatura", matricula.getAsignatura())
+                    .append("curso", matricula.getCurso())
+                    .append("createdAt", matricula.getCreatedAt().toString());
+            collection.insertOne(doc);
+        }catch(Exception e){
+            System.out.println("Error al insertar la matricula");
+        }
+    }
+
+
+    /**
+     *Se encarga de editar una matricula. Esto no significa que se llame al método updateOne,
+     * ya que nosotros controlamos las entradas mediante un Timestamp. Esto significa que
+     * si se llama a este método, se insertará un nuevo documento con el mismo id que el
+     * anterior, pero con un timestamp más reciente y un id de Mongo diferente
+     *
+     *<pre>matricula no puede estar vacío ni ser null</pre>
+     * <post>introducirá un nuevo registro en la base de datos con un id igual a uno ya existente en esta</post>
+     * @param matricula
+     */
+    public static void editMatricula(Matricula matricula){
         try{
             MongoClient mongoClient = MongoClients.create(URI);
             MongoDatabase database = mongoClient.getDatabase("Colegio");
@@ -133,10 +202,12 @@ public class MatriculasDAO {
                     .append("id", matricula.getId())
                     .append("dniAlumno", matricula.getDniAlumno())
                     .append("dniProfesor", matricula.getDniProfesor())
-                    .append("createdAt", matricula.getCreatedAt().toString());
+                    .append("asignatura", matricula.getAsignatura())
+                    .append("curso", matricula.getCurso())
+                    .append("createdAt", Timestamp.from(Instant.now()).toString());
             collection.insertOne(doc);
         }catch(Exception e){
-            System.out.println("Error al insertar la matricula");
+            System.out.println("Error al editar la matricula");
         }
     }
 
@@ -186,6 +257,25 @@ MongoCollection<Document> collection = database.getCollection("Matriculas");
         MongoDatabase database = mongoClient.getDatabase("Colegio");
         MongoCollection<Document> collection = database.getCollection("Matriculas");
         MongoCursor<Document> result = collection.find(eq("dniAlumno", idAlumno)).iterator();
+
+        while (result.hasNext()) {
+            matriculas.add(getMatricula(result.next(), null));
+        }
+
+        return matriculas;
+    }
+
+    public static List<Matricula> GetOcurenciasMatricula(int id){
+        List<Matricula> matriculas = new ArrayList<>();
+        ConnectionString cnst = new ConnectionString(URI);
+        MongoClientSettings cls = MongoClientSettings.builder()
+                .applyConnectionString(cnst)
+                .retryWrites(true)
+                .build();
+        MongoClient mongoClient = MongoClients.create(cls);
+        MongoDatabase database = mongoClient.getDatabase("Colegio");
+        MongoCollection<Document> collection = database.getCollection("Matriculas");
+        MongoCursor<Document> result = collection.find(eq("id", id)).iterator();
 
         while (result.hasNext()) {
             matriculas.add(getMatricula(result.next(), null));

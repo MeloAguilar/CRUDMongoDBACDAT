@@ -69,9 +69,7 @@ public class MongoDAL {
     }
 
 
-    public static void editAlumno() {
 
-    }
 
 
     /**
@@ -116,7 +114,7 @@ public class MongoDAL {
             var collection = db.getCollection("Matriculas");
             try {
                 //editar matricula
-                MatriculasDAO.insertMatricula(matricula);
+                MatriculasDAO.editMatricula(matricula);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -6,13 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8cb08271-4cfe-495a-b8ae-659af8a6b1f1" name="Changes" comment="Reformado como el Bully">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/AlumnoDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/AlumnoDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/MatriculasDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/MatriculasDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/ProfesorDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/ProfesorDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoConnection.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoDAL.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoDAL.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Alumno.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Alumno.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Matricula.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/EntidadesPersistencia/Matricula.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/UI/menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/UI/menu.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -32,13 +27,6 @@
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
-  </component>
-  <component name="MavenImportPreferences">
-    <option name="importingSettings">
-      <MavenImportingSettings>
-        <option name="workspaceImportEnabled" value="true" />
-      </MavenImportingSettings>
-    </option>
   </component>
   <component name="ProjectId" id="2LjsidnSbEOfd80lRONYH8iGrum" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -61,7 +49,7 @@
     "project.structure.last.edited": "Libraries",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.editor",
+    "settings.editor.selected.configurable": "configurable.group.appearance",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -107,6 +95,7 @@
       <workItem from="1676723367718" duration="5597000" />
       <workItem from="1676734366513" duration="18914000" />
       <workItem from="1676804633075" duration="30143000" />
+      <workItem from="1676963823288" duration="7756000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <created>1676405517739</created>
@@ -179,23 +168,38 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoDAL.java</url>
-          <line>157</line>
+          <line>155</line>
           <option name="timeStamp" value="32" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/DAL/Mongo/MongoDAL.java</url>
-          <line>128</line>
+          <line>126</line>
           <option name="timeStamp" value="35" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/UI/menu.java</url>
-          <line>585</line>
+          <line>590</line>
           <option name="timeStamp" value="36" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/UI/menu.java</url>
-          <line>109</line>
+          <line>113</line>
           <option name="timeStamp" value="37" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DAL/Mongo/DAO/MatriculasDAO.java</url>
+          <line>31</line>
+          <option name="timeStamp" value="38" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/UI/menu.java</url>
+          <line>345</line>
+          <option name="timeStamp" value="39" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/UI/menu.java</url>
+          <line>1301</line>
+          <option name="timeStamp" value="40" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -30,7 +30,7 @@ public class menu {
     }
 
     private static int seleccionarOpcion(Scanner sc) {
-        int eleccion = 0;
+        int eleccion = -1;
         String opcion = sc.next();
 
         try {
@@ -70,28 +70,32 @@ public class menu {
 
         var salir = false;
         while (!salir) {
-            System.out.println(menu);
-            var eleccion = seleccionarOpcion(sc);
-            switch (eleccion) {
-                case 1 -> {
-                    menuInsertarRegistro(sc);
-                }
-                case 2 -> {
-                    menuModificarRegistro(sc);
-                }
-                case 3 -> {
-                    eliminarRegistro(sc);
-                }
-                case 4 -> {
-                    menuListarRegistrosDeTabla(sc);
-                }
-                case 5 -> {
-                    menuObtenerRegistroPorNumeroDeIdentificacion(sc);
-                }
-                case 0 -> {
-                    salir = true;
-                }
+            try {
+                System.out.println(menu);
+                var eleccion = seleccionarOpcion(sc);
+                switch (eleccion) {
+                    case 1 -> {
+                        menuInsertarRegistro(sc);
+                    }
+                    case 2 -> {
+                        menuModificarRegistro(sc);
+                    }
+                    case 3 -> {
+                        eliminarRegistro(sc);
+                    }
+                    case 4 -> {
+                        menuListarRegistrosDeTabla(sc);
+                    }
+                    case 5 -> {
+                        menuObtenerRegistroPorNumeroDeIdentificacion(sc);
+                    }
+                    case 0 -> {
+                        salir = true;
+                    }
 
+                }
+            } catch (Exception e) {
+                System.out.println("Introduzca un numero");
             }
         }
     }
@@ -180,27 +184,27 @@ public class menu {
         sc = new Scanner(System.in);
         System.out.println("Introduzca el nuevo dni del alumno");
         var id = sc.next();
-        var alumno =new Alumno();
+        var alumno = new Alumno();
         while (!id.matches("[0-9]{8}[A-Z]")) {
             System.out.println("El DNI introducido no es válido");
             System.out.println("Introduzca el DNI del alumno"
                     + " (debe ser un número de 8 cifras junto con una letra mayúscula)");
             id = sc.next();
             alumno = AlumnoDAO.GetAlumnoById(id);
-            if(alumno.getDni().equals("00000000A")){
+            if (alumno.getDni().equals("00000000A")) {
                 System.out.println("No existe un alumno con ese DNI");
                 id = "";
             }
         }
         alumno.setDni(id);
-        var profesor =new Profesor();
+        var profesor = new Profesor();
         while (!id.matches("[0-9]{8}[A-Z]")) {
             System.out.println("El DNI introducido no es válido");
             System.out.println("Introduzca el DNI del alumno"
                     + " (debe ser un número de 8 cifras junto con una letra mayúscula)");
             id = sc.next();
             profesor = ProfesorDAO.GetProfesorById(id);
-            if(profesor.getDni().equals("00000000A")){
+            if (profesor.getDni().equals("00000000A")) {
                 System.out.println("No existe un profesor con ese DNI");
                 id = "";
             }
@@ -209,11 +213,11 @@ public class menu {
         matricula.setAsignatura(eleccionAsignatura());
 
         var salida = false;
-        do{
+        do {
             System.out.println("Introduzca el curso");
             matricula.setCurso(sc.nextInt());
             salida = (matricula.getCurso() >= 1) && (matricula.getCurso() <= 2);
-        }while(!salida);
+        } while (!salida);
 
         System.out.println("Matricula editada correctamente");
     }
@@ -497,7 +501,7 @@ public class menu {
                 //}
                 case 3 -> {
                     try {
-                        MongoDAL.insertObject(getDatosMatriculaNuevo(sc));
+                        MongoDAL.insertObject(getDatosMatriculaNuevo(sc, 0));
                         System.out.println("Se insertaron los datos con éxito");
                     } catch (Exception e) {
                         System.out.println("No se pudieron insertar los datos");
@@ -544,6 +548,7 @@ public class menu {
     /**
      * Método que se encarga de pedirle a la clase DAL que obtenga todos los registros de la tabla alumnos de la base de datos
      * según el nombre introducido por el usuario
+     *
      * @param sc
      */
     private void getAlumnosPorNombre(Scanner sc) {
@@ -588,8 +593,10 @@ public class menu {
                     System.out.println("El alumno no existe en nuestro registro");
                     return false;
                 }
+                //Obtengo todos los registros de la tabla alumnos
                 List<Alumno> alumnos = AlumnoDAO.getEntradasDeAlumno(alumno);
                 var cantidad = 0;
+                //Si hay más de un registro para el alumno
                 System.out.println("Desea eliminar un registro en específico o todos los datos de nuestro registro?");
                 System.out.println("1. Eliminar un registro en específico");
                 System.out.println("2. Eliminar todos los registros");
@@ -610,7 +617,7 @@ public class menu {
                                 //Recojo el id del registro que se desea eliminar
                                 var idRegistro = sc.nextInt();
                                 //Compruebo que la entrada sea válida
-                                if (idRegistro > (alumnos.size() - 1) || idRegistro < 0)
+                                if (idRegistro - 1 > (alumnos.size()) || idRegistro < 0)
                                     System.out.println("No existe ningun registro con ese numero");
                                 else if (idRegistro == 0) {
                                     System.out.println("cancelando eliminacion");
@@ -925,13 +932,13 @@ public class menu {
                         for (Profesor p : profesores) {
                             System.out.println(p);
                         }
-                        while(!salir2){
+                        while (!salir2) {
                             System.out.println("Está seguro de que desea eliminar todos los registros relacionados con el alumno seleccionado?");
                             System.out.println("Recuerde que si elimina todos los registros, el alumno desaparecerá de nuestro registro");
                             System.out.println("1. Si");
                             System.out.println("2. No");
                             var opcion2 = sc.nextInt();
-                            switch (opcion2){
+                            switch (opcion2) {
                                 case 1:
                                     for (Profesor p : profesores) {
                                         MongoDAL.deleteByString("Profesores", p.get_id());
@@ -1118,19 +1125,25 @@ public class menu {
      * @return
      */
     private Matricula getDatosMatriculaCambiar(Scanner sc) {
+        sc = new Scanner(System.in);
         Matricula _datos = new Matricula();
 
         System.out.println("introduce el número de identificación de la Matricula");
         try {
             var id = Integer.parseInt(sc.nextLine());
             System.out.println(MatriculasDAO.GetMatriculaById(id));
-            var datosMatricula = getDatosMatriculaNuevo(sc);
+            var datosMatricula = getDatosMatriculaNuevo(sc, id);
             _datos.setDniAlumno(datosMatricula.getDniAlumno());
             _datos.setDniProfesor(datosMatricula.getDniProfesor());
             _datos.setCurso(datosMatricula.getCurso());
+            _datos.setAsignatura(datosMatricula.getAsignatura());
+            _datos.setId(id);
+
+
         } catch (NumberFormatException e) {
             System.out.println("El identificador del Profesor debe ser un numero entero");
         }
+
         return _datos;
     }
 
@@ -1142,12 +1155,58 @@ public class menu {
      */
     private void eliminarMatricula(Scanner sc) {
         boolean salir = false;
-
+        sc = new Scanner(System.in);
+        boolean eliminar = false;
+        //Compruebo que no se deba salir
         while (!salir) {
             try {
+                //Recojo todas las matriculas para mostrarselas al usuario
+                var lista = MatriculasDAO.GetMatriculas();
+                for (var matricula : lista) {
+                    if (matricula != null)
+                        System.out.println(matricula);
+                }
+                //Pido al usuario que introduzca el identificador de la matricula que desea eliminar
+                System.out.println("Introduzca el número de identificación de la matrícula que desea eliminar");
                 var id = Integer.parseInt(sc.next());
-                var matricula = MatriculasDAO.GetMatriculaById(id);
-                MongoDAL.deleteObject(matricula);
+                //Recojo todas las ocurrencias de esa matrícula
+                var matriculas = MatriculasDAO.GetOcurenciasMatricula(id);
+                //Si hay más de una ocurrencia
+                if (matriculas.size() > 1) {
+                    var respuesta = "";
+                    while (!respuesta.equalsIgnoreCase("S") && !respuesta.equalsIgnoreCase("N")) {
+                        System.out.println("La matrícula tiene más de una ocurrencia, ¿desea eliminar todas las ocurrencias? (s/n)");
+                        respuesta = sc.next();
+                        if (respuesta.equalsIgnoreCase("S")) {
+                            for (var matricula : matriculas) {
+                                MongoDAL.deleteObject(matricula);
+                            }
+                        } else if (respuesta.equalsIgnoreCase("N")) {
+                            var cont = 0;
+                            for (var matri : matriculas) {
+                                cont++;
+                                System.out.println(cont + " para seleccionar la siguiente matricula" + matri);
+                            }
+                            var respuesta2 = sc.next();
+                            while (respuesta2.matches("[0-9]+") && Integer.parseInt(respuesta2) < cont) {
+                                MongoDAL.deleteByString("Matriculas", matriculas.get(Integer.parseInt(respuesta2)).get_id());
+                            }
+
+                        }
+                    }
+                }else{
+                    System.out.printf("¿Está seguro de que desea eliminar la matrícula %s? (s/n)", matriculas.get(0));
+                    var respuesta = sc.next();
+                    while(!respuesta.equalsIgnoreCase("S") && !respuesta.equalsIgnoreCase("N")){
+                        System.out.println("Por favor, introduzca una respuesta válida (s/n)");
+                        respuesta = sc.next();
+                        if(respuesta.equalsIgnoreCase("S")){
+                            MongoDAL.deleteObject(matriculas.get(0));
+                        }else if (respuesta.equalsIgnoreCase("N")){
+                            System.out.println("La matrícula no se ha eliminado");
+                        }
+                    }
+                }
             } catch (NumberFormatException e) {
                 System.out.println("Debe introducir un número");
             }
@@ -1177,7 +1236,7 @@ public class menu {
                 List<Matricula> matriculas = MatriculasDAO.GetMatriculasProfesor(dni);
                 for (Matricula mat : matriculas) {
                     contador++;
-                    System.out.println(contador + " para eliminar este registro\n" +mat);
+                    System.out.println(contador + " para eliminar este registro\n" + mat);
                 }
 
                 System.out.println("escriba un número para elegir una matricula o 0 para salir");
@@ -1240,12 +1299,13 @@ public class menu {
      */
     private String eleccionAsignatura() {
 
-        var r = "PROG|BBDD|DEINT|FOL|EIEMP|ACDAT|PMDMO|PSPRO";
-        var real = r.split("|");
+        var r = "PROG,BBDD,DEINT,FOL,EIEMP,ACDAT,PMDMO,PSPRO";
+        var real = r.split(",");
         var sc = new Scanner(System.in);
         var asignatura = "0";
-        while (!asignatura.matches("[1-9]")) {
-            asignatura = sc.nextLine();
+        var eleccion = "";
+        while (!eleccion.matches("[1-9]")) {
+
             var menu = """
                     =========================================
                      
@@ -1272,7 +1332,8 @@ public class menu {
                                     
                     ========================================""";
             System.out.println(menu);
-            switch (asignatura) {
+            eleccion = sc.next();
+            switch (eleccion) {
                 case "1" -> asignatura = real[0];
                 case "2" -> asignatura = real[1];
                 case "3" -> asignatura = real[2];
@@ -1284,6 +1345,7 @@ public class menu {
                 case "9" -> asignatura = real[8];
                 default -> {
                     System.out.println("La asignatura introducida no es válida");
+                    eleccion = "";
                     asignatura = "0";
                 }
             }
@@ -1300,9 +1362,14 @@ public class menu {
      * @param sc
      * @return
      */
-    private Matricula getDatosMatriculaNuevo(Scanner sc) {
+    private Matricula getDatosMatriculaNuevo(Scanner sc, int id) {
         sc = new Scanner(System.in);
         Matricula datos = new Matricula();
+
+        if (id != 0) {
+            datos.setId(id);
+        }
+
 
         boolean salir = false;
         //volveremos a pedir el dni del profesor mientras no se introduzca un
